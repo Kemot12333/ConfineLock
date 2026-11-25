@@ -1,0 +1,41 @@
+# ============================================
+#  ConfineLock - konfiguracja
+#  Kolory: kody z & (np. &a = zielony, &c = czerwony)
+# ============================================
+
+# Swiaty trybu ConfineSMP (dokladne nazwy z komendy /mv list).
+# Zablokowani gracze NIE moga do nich wejsc.
+confine-worlds:
+  - "ConfineSMP"
+  - "ConfineSMP_nether"
+  - "ConfineSMP_the_end"
+
+# Swiat lobby - tu odradza sie gracz po smierci i tu jest cofany,
+# gdy sprobuje wejsc do ConfineSMP.
+fallback-world: "world"
+
+# true  = blokade dostaje tylko ten, kto zginal W swiecie ConfineSMP
+# false = smierc w dowolnym swiecie (np. Skyblok) tez daje blokade
+only-count-deaths-in-confine-world: true
+
+# Ogloszenie na czacie, gdy ktos dostanie blokade
+broadcast-lock: true
+
+messages:
+  prefix: "&8[&bConfineSMP&8] "
+  lock-enabled: "&aBlokada WŁĄCZONA &7- kto od teraz zginie, nie wejdzie do ConfineSMP."
+  lock-already-enabled: "&eBlokada jest już włączona."
+  lock-disabled: "&aBlokada wyłączona. Odblokowano &e{count} &agraczy."
+  lock-not-active: "&cBlokada nie jest aktywna."
+  you-are-locked: "&cZginąłeś! Nie możesz wejść do trybu ConfineSMP, dopóki administrator nie zdejmie blokady."
+  broadcast-lock: "&e{player} &czginął i traci dostęp do ConfineSMP!"
+  blocked-enter: "&cNie możesz wejść do ConfineSMP - zginąłeś podczas blokady!"
+  kicked-out: "&cZostałeś przeniesiony do lobby - masz blokadę na ConfineSMP."
+  you-were-unlocked: "&aBlokada zdjęta - możesz znowu wejść do ConfineSMP!"
+  player-unlocked: "&aOdblokowano gracza &e{player}&a."
+  player-not-locked: "&cGracz &e{player} &cnie ma blokady."
+  status-active: "&7Status blokady: &aAKTYWNA"
+  status-inactive: "&7Status blokady: &cNIEAKTYWNA"
+  list-header: "&6Zablokowani gracze (&e{count}&6):"
+  list-entry: "&7- &e{player}"
+  list-empty: "&7Nikt nie jest obecnie zablokowany."

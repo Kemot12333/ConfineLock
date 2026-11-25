@@ -1,0 +1,101 @@
+# ==========================================================
+#  ConfineLock - wersja na Skript (bez kompilowania)
+#  Wymaga pluginu Skript 2.9 lub nowszego.
+#  Wgraj ten plik do: plugins/Skript/scripts/
+#  Potem wpisz: /sk reload ConfineLock
+#
+#  /confinelock          - od teraz kto zginie w ConfineSMP, nie wejdzie tam ponownie
+#  /confineunlock        - koniec blokady, odblokowuje wszystkich
+#  /confineunlock <nick> - odblokowuje jednego gracza
+#  /confinelist          - status i lista zablokowanych
+# ==========================================================
+
+options:
+    # Fragment nazwy swiata ConfineSMP (pasuje tez do ConfineSMP_nether itd.)
+    confine-world: ConfineSMP
+    # Swiat lobby, do ktorego trafia zablokowany gracz
+    lobby-world: world
+    prefix: &8[&bConfineSMP&8]
+
+command /confinelock:
+    description: Wlacza blokade wejscia do ConfineSMP dla tych, ktorzy zgina
+    permission: confinesmp.admin
+    permission message: &cNie masz uprawnień.
+    trigger:
+        if {confinelock::active} is true:
+            send "{@prefix} &eBlokada jest już włączona."
+            stop
+        set {confinelock::active} to true
+        send "{@prefix} &aBlokada WŁĄCZONA &7- kto od teraz zginie w ConfineSMP, nie wejdzie tam ponownie."
+
+command /confineunlock [<offlineplayer>]:
+    description: Konczy blokade (wszystkim albo jednemu graczowi)
+    permission: confinesmp.admin
+    permission message: &cNie masz uprawnień.
+    trigger:
+        if arg-1 is set:
+            if {confinelock::locked::%arg-1%} is not set:
+                send "{@prefix} &cGracz &e%arg-1% &cnie ma blokady."
+                stop
+            delete {confinelock::locked::%arg-1%}
+            send "{@prefix} &aOdblokowano gracza &e%arg-1%&a."
+            send "{@prefix} &aBlokada zdjęta - możesz znowu wejść do ConfineSMP!" to arg-1
+            stop
+        if {confinelock::active} is not true:
+            if size of {confinelock::locked::*} is 0:
+                send "{@prefix} &cBlokada nie jest aktywna."
+                stop
+        set {_count} to size of {confinelock::locked::*}
+        loop all players:
+            if {confinelock::locked::%loop-player%} is set:
+                send "{@prefix} &aBlokada zdjęta - możesz znowu wejść do ConfineSMP!" to loop-player
+        set {confinelock::active} to false
+        delete {confinelock::locked::*}
+        send "{@prefix} &aBlokada wyłączona. Odblokowano &e%{_count}% &agraczy."
+
+command /confinelist:
+    description: Status blokady i lista zablokowanych
+    permission: confinesmp.admin
+    permission message: &cNie masz uprawnień.
+    trigger:
+        if {confinelock::active} is true:
+            send "{@prefix} &7Status blokady: &aAKTYWNA"
+        else:
+            send "{@prefix} &7Status blokady: &cNIEAKTYWNA"
+        if size of {confinelock::locked::*} is 0:
+            send "{@prefix} &7Nikt nie jest obecnie zablokowany."
+            stop
+        send "{@prefix} &6Zablokowani gracze (&e%size of {confinelock::locked::*}%&6):"
+        loop {confinelock::locked::*}:
+            send "&7- &e%loop-index%"
+
+# Smierc w ConfineSMP przy aktywnej blokadzie = blokada wejscia
+on death of player:
+    {confinelock::active} is true
+    "%world of victim%" contains "{@confine-world}"
+    {confinelock::locked::%victim%} is not set
+    set {confinelock::locked::%victim%} to true
+    send "{@prefix} &cZginąłeś! Nie możesz wejść do trybu ConfineSMP, dopóki administrator nie zdejmie blokady." to victim
+    broadcast "{@prefix} &e%victim% &czginął i traci dostęp do ConfineSMP!"
+
+# Zablokowany gracz odradza sie w lobby, a nie w ConfineSMP
+on respawn:
+    {confinelock::locked::%player%} is set
+    "%world of respawn location%" contains "{@confine-world}"
+    set respawn location to spawn of world "{@lobby-world}"
+
+# Proba wejscia do ConfineSMP (portal, /mv tp, warp...) = cofniecie do lobby
+on world change:
+    {confinelock::locked::%player%} is set
+    "%world of player%" contains "{@confine-world}"
+    send "{@prefix} &cNie możesz wejść do ConfineSMP - zginąłeś podczas blokady!" to player
+    wait 1 tick
+    teleport player to spawn of world "{@lobby-world}"
+
+# Gracz wylogowal sie w ConfineSMP, a w miedzyczasie dostal blokade
+on join:
+    {confinelock::locked::%player%} is set
+    wait 10 ticks
+    "%world of player%" contains "{@confine-world}"
+    teleport player to spawn of world "{@lobby-world}"
+    send "{@prefix} &cZostałeś przeniesiony do lobby - masz blokadę na ConfineSMP." to player

@@ -1,0 +1,32 @@
+name: ConfineLock
+version: 1.0.0
+main: pl.confinesmp.lock.ConfineLockPlugin
+api-version: '1.21'
+description: Po /confinelock gracze, ktorzy zgina, nie wejda do ConfineSMP az do /confineunlock.
+authors: [ConfineSMP]
+softdepend: [Multiverse-Core, Multiverse-Portals, Essentials]
+
+commands:
+  confinelock:
+    description: Wlacza blokade - kto zginie, nie wejdzie do ConfineSMP.
+    usage: /confinelock
+    aliases: [cslock]
+    permission: confinesmp.admin
+  confineunlock:
+    description: Wylacza blokade i odblokowuje wszystkich (lub jednego gracza).
+    usage: /confineunlock [gracz]
+    aliases: [csunlock]
+    permission: confinesmp.admin
+  confinelist:
+    description: Status blokady i lista zablokowanych graczy.
+    usage: /confinelist
+    aliases: [cslist]
+    permission: confinesmp.admin
+
+permissions:
+  confinesmp.admin:
+    description: Dostep do komend ConfineLock.
+    default: op
+  confinesmp.bypass:
+    description: Omija blokade wejscia do ConfineSMP.
+    default: false
